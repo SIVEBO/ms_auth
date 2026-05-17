@@ -4,10 +4,12 @@ import com.sivebo.ms_auth.dto.*;
 import com.sivebo.ms_auth.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -17,11 +19,13 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UsuarioResponse> register(@Valid @RequestBody RegisterRequest request) {
+        log.info("[ms_auth] POST /auth/register - username: {}", request.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registrar(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        log.info("[ms_auth] POST /auth/login - username: {}", request.getUsername());
         return ResponseEntity.ok(usuarioService.login(request));
     }
 }
