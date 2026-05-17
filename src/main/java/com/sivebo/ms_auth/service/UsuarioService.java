@@ -7,6 +7,7 @@ import com.sivebo.ms_auth.model.Usuario;
 import com.sivebo.ms_auth.repository.RolRepository;
 import com.sivebo.ms_auth.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -24,25 +26,35 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponse registrar(RegisterRequest request) {
-        if (usuarioRepository.existsByUsername(request.getUsername()))
+        log.info("[ms_auth] Intentando registrar usuario: {}", request.getUsername());
+
+        if (usuarioRepository.existsByUsername(request.getUsername())) {
+            log.warn("[ms_auth] Username ya en uso: {}", request.getUsername());
             throw new RuntimeException("El username ya está en uso: " + request.getUsername());
+        }
 
         if (request.getEmail() != null && !request.getEmail().isBlank()
-                && usuarioRepository.existsByEmail(request.getEmail()))
+                && usuarioRepository.existsByEmail(request.getEmail())) {
+            log.warn("[ms_auth] Email ya en uso: {}", request.getEmail());
             throw new RuntimeException("El email ya está en uso: " + request.getEmail());
+        }
 
         NombreRol nombreRol = NombreRol.CAJERO;
         if (request.getRol() != null && !request.getRol().isBlank()) {
             try {
                 nombreRol = NombreRol.valueOf(request.getRol().toUpperCase());
             } catch (IllegalArgumentException e) {
+                log.error("[ms_auth] Rol inválido recibido: {}", request.getRol());
                 throw new RuntimeException("Rol inválido: " + request.getRol() + ". Valores: ADMIN, CAJERO");
             }
         }
 
         final NombreRol rolFinal = nombreRol;
         Rol rol = rolRepository.findByNombre(rolFinal)
-                .orElseGet(() -> rolRepository.save(new Rol(null, rolFinal)));
+                .orElseGet(() -> {
+                    log.info("[ms_auth] Creando rol nuevo en BD: {}", rolFinal);
+                    return rolRepository.save(new Rol(null, rolFinal));
+                });
 
         Usuario usuario = Usuario.builder()
                 .username(request.getUsername())
@@ -52,20 +64,32 @@ public class UsuarioService {
                 .activo(true)
                 .build();
 
-        return toResponse(usuarioRepository.save(usuario));
+        UsuarioResponse response = toResponse(usuarioRepository.save(usuario));
+        log.info("[ms_auth] Usuario registrado exitosamente id={}, rol={}", response.getId(), rolFinal);
+        return response;
     }
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
+        log.info("[ms_auth] Intento de login para: {}", request.getUsername());
+
         Usuario usuario = usuarioRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> {
+                    log.warn("[ms_auth] Usuario no encontrado: {}", request.getUsername());
+                    return new RuntimeException("Usuario no encontrado");
+                });
 
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword()))
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+            log.warn("[ms_auth] Contraseña incorrecta para: {}", request.getUsername());
             throw new RuntimeException("Contraseña incorrecta");
+        }
 
-        if (!usuario.isActivo())
+        if (!usuario.isActivo()) {
+            log.warn("[ms_auth] Usuario inactivo: {}", request.getUsername());
             throw new RuntimeException("Usuario inactivo");
+        }
 
+        log.info("[ms_auth] Login exitoso para: {}", request.getUsername());
         return AuthResponse.builder()
                 .mensaje("Login exitoso")
                 .username(usuario.getUsername())
@@ -75,9 +99,12 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listarUsuarios() {
-        return usuarioRepository.findAll().stream()
+        log.info("[ms_auth] Listando todos los usuarios");
+        List<UsuarioResponse> lista = usuarioRepository.findAll().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+        log.info("[ms_auth] Total usuarios encontrados: {}", lista.size());
+        return lista;
     }
 
     private UsuarioResponse toResponse(Usuario u) {
