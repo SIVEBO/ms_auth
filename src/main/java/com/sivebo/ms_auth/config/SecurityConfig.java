@@ -24,7 +24,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
-                .anyRequest().permitAll() // TODO: cambiar a authenticated() al integrar JWT
+                .anyRequest().permitAll()
             );
         return http.build();
     }
