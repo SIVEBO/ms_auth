@@ -1,24 +1,29 @@
 package com.sivebo.ms_auth.controller;
 
-import com.sivebo.ms_auth.dto.UsuarioResponse;
-import com.sivebo.ms_auth.service.UsuarioService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@Slf4j
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sivebo.ms_auth.dto.response.UsuarioResponseDTO;
+import com.sivebo.ms_auth.service.UsuarioService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("api/v1/usuarios")
 @RequiredArgsConstructor
+@Tag(name = "Usuarios", description = "Consulta de usuarios registrados")
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+        private final UsuarioService usuarioService;
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioResponse>> listar() {
-        log.info("[ms_auth] GET /usuarios");
-        return ResponseEntity.ok(usuarioService.listarUsuarios());
-    }
+        @Operation(summary = "Listar todos los usuarios registrados")
+        @GetMapping
+        public List<UsuarioResponseDTO> listar() {
+                return usuarioService.listarUsuarios();
+        }
 }
