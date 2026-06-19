@@ -1,41 +1,49 @@
 package com.sivebo.ms_auth.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "usuarios")
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Entity
+@Table(name = "usuarios")
 public class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        Long id;
 
-    @Column(unique = true, nullable = false, length = 50)
-    private String username;
+        @Column(name = "username", nullable = false, unique = true, length = 50)
+        String username;
 
-    @Column(nullable = false)
-    private String password;
+        @Column(name = "password_hash", nullable = false, length = 60, columnDefinition = "CHAR(60)")
+        String passwordHash;
 
-    @Column(unique = true, length = 100)
-    private String email;
+        @Column(name = "email", unique = true, length = 100)
+        String email;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean activo = true;
+        @ManyToOne
+        @JoinColumn(name = "id_rol", nullable = false)
+        Rol rol;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "usuario_roles",
-        joinColumns = @JoinColumn(name = "usuario_id"),
-        inverseJoinColumns = @JoinColumn(name = "rol_id")
-    )
-    @Builder.Default
-    private Set<Rol> roles = new HashSet<>();
+        @Column(name = "id_sucursal_asignada")
+        Long idSucursalAsignada;
+
+        @Column(name = "activo", nullable = false)
+        Boolean activo;
+
+        @Column(name = "created_at", nullable = false)
+        LocalDateTime createdAt;
 }
