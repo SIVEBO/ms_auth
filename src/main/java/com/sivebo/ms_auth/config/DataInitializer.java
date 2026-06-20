@@ -18,17 +18,15 @@ public class DataInitializer implements CommandLineRunner {
 
         @Override
         public void run(String... args) {
-                if (rolRepository.count() > 0) {
-                        log.info(">>> Roles ya cargados. Se omite inicialización.");
-                        return;
+                saveIfAbsent("Admin", "Acceso total al sistema");
+                saveIfAbsent("Operador", "Acceso operativo en sucursal");
+                saveIfAbsent("Cliente", "Acceso limitado de consulta");
+        }
+
+        private void saveIfAbsent(String nombreRol, String descripcion) {
+                if (!rolRepository.existsByNombreRol(nombreRol)) {
+                        rolRepository.save(new Rol(null, nombreRol, descripcion));
+                        log.info(">>> Rol '{}' creado.", nombreRol);
                 }
-
-                log.info(">>> Cargando roles iniciales...");
-
-                rolRepository.save(new Rol(null, "Admin", "Acceso total al sistema"));
-                rolRepository.save(new Rol(null, "Operador", "Acceso operativo en sucursal"));
-                rolRepository.save(new Rol(null, "Cliente", "Acceso limitado de consulta"));
-
-                log.info(">>> Roles iniciales cargados exitosamente.");
         }
 }
