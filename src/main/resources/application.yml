@@ -1,10 +1,10 @@
 spring:
   application:
-    name: ms_admision
+    name: ms_auth
   profiles:
     active: dev
   datasource:
-    url: ${DB_URL:jdbc:mariadb://localhost:3306/db_ms_admision?createDatabaseIfNotExist=true}
+    url: ${DB_URL:jdbc:mariadb://localhost:3306/db_ms_auth?createDatabaseIfNotExist=true}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: org.mariadb.jdbc.Driver
@@ -19,7 +19,7 @@ spring:
           sql: true
 
 server:
-  port: ${SERVER_PORT:8087}
+  port: ${SERVER_PORT:8001}
 
 springdoc:
   api-docs:
@@ -35,12 +35,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-ms:
-  clientes:
-    url: ${MS_CLIENTES_URL:http://localhost:8085}
-  sucursales:
-    url: ${MS_SUCURSALES_URL:http://localhost:8083}
-  auth:
-    url: ${MS_AUTH_URL:http://localhost:8086}
-  tracking:
-    url: ${MS_TRACKING_URL:http://localhost:8093}
+jwt:
+  secret: ${JWT_SECRET:wzO3r4PadzwqMhgV7h3GgvIrkopVoaIj3GvNZb7M3x4=}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}

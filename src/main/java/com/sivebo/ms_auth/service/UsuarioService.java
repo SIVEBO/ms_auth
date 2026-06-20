@@ -104,6 +104,13 @@ public class UsuarioService extends MapToDTO {
                                 .collect(Collectors.toList());
         }
 
+        // Usado por otros microservicios via WebClient (ej. ms_admision validando id_usuario_reg)
+        public UsuarioResponseDTO getById(Long id) {
+                return usuarioRepository.findById(id)
+                                .map(this::mapUsuarioToDTO)
+                                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
+        }
+
         // RF-04: logout con invalidacion del token de sesion
         public void logout(String token) {
                 TokenSesion sesion = tokenSesionRepository.findByToken(token)

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb_admision;DB_CLOSE_DELAY=-1;MODE=MariaDB
+    url: jdbc:h2:mem:testdb_auth;DB_CLOSE_DELAY=-1;MODE=MariaDB
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -13,12 +13,6 @@ eureka:
   client:
     enabled: false
 
-ms:
-  clientes:
-    url: http://localhost:8085
-  sucursales:
-    url: http://localhost:8083
-  auth:
-    url: http://localhost:8086
-  tracking:
-    url: http://localhost:8093
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclVuaXRUZXN0aW5nMTIzNDU2Nzg5MA==
+  expiration-ms: 3600000

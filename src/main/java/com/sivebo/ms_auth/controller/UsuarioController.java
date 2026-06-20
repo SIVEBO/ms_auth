@@ -2,7 +2,9 @@ package com.sivebo.ms_auth.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,5 +27,11 @@ public class UsuarioController {
         @GetMapping
         public List<UsuarioResponseDTO> listar() {
                 return usuarioService.listarUsuarios();
+        }
+
+        @Operation(summary = "Obtener usuario por id", description = "Usado para validacion entre microservicios via WebClient")
+        @GetMapping("/{id}")
+        public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id) {
+                return ResponseEntity.ok(usuarioService.getById(id));
         }
 }

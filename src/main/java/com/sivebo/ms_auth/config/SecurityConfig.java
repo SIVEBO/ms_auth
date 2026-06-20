@@ -2,6 +2,7 @@ package com.sivebo.ms_auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,6 +34,8 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
                                 .requestMatchers("/doc/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                                 .requestMatchers("/actuator/**").permitAll()
+                                // Lookup individual abierto para validacion entre microservicios (ej. ms_admision)
+                                .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/*").permitAll()
                                 .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
