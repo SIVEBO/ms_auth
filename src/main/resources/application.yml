@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ms_auth
+    name: ms-auth
   profiles:
     active: dev
   datasource:
