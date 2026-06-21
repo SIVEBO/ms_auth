@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.sivebo.ms_auth.repository.TokenSesionRepository;
 import com.sivebo.ms_auth.utils.JwtUtil;
 
 import jakarta.servlet.FilterChain;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         private final JwtUtil jwtUtil;
+        private final TokenSesionRepository tokenSesionRepository;
 
         @Override
         protected void doFilterInternal(
@@ -35,7 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (header != null && header.startsWith("Bearer ")) {
                         String token = header.substring(7);
 
-                        if (jwtUtil.isTokenValid(token)) {
+                        // RF-04: el token debe ser valido (firma + expiracion) Y seguir
+                        // existiendo en TOKEN_SESION; logout elimina la fila e invalida el token.
+                        if (jwtUtil.isTokenValid(token)
+                                        && tokenSesionRepository.findByToken(token).isPresent()) {
                                 String username = jwtUtil.extractUsername(token);
                                 String rol = jwtUtil.extractRol(token);
 

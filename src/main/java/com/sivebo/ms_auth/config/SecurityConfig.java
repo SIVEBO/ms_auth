@@ -31,11 +31,13 @@ public class SecurityConfig {
                         .csrf(csrf -> csrf.disable())
                         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                                 .requestMatchers("/doc/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                                 .requestMatchers("/actuator/**").permitAll()
                                 // Lookup individual abierto para validacion entre microservicios (ej. ms_admision)
                                 .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/*").permitAll()
+                                // RF-02: solo un Admin puede registrar nuevos usuarios
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
