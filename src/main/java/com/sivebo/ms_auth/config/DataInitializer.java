@@ -46,8 +46,6 @@ public class DataInitializer implements CommandLineRunner {
                 }
         }
 
-        // RF-02: el registro de usuarios es exclusivo de un Admin autenticado.
-        // Se crea un Admin inicial (idempotente) para poder operar el sistema.
         private void bootstrapAdminUsuario() {
                 if (usuarioRepository.existsByUsername(adminUsername)) {
                         return;

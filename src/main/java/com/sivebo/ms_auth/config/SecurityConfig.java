@@ -24,7 +24,6 @@ public class SecurityConfig {
                 return new BCryptPasswordEncoder();
         }
 
-        // RF-03: restringe el acceso a recursos segun el rol del usuario autenticado
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
@@ -34,9 +33,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                                 .requestMatchers("/doc/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                                 .requestMatchers("/actuator/**").permitAll()
-                                // Lookup individual abierto para validacion entre microservicios (ej. ms_admision)
                                 .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/*").permitAll()
-                                // RF-02: solo un Admin puede registrar nuevos usuarios
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/usuarios/**").hasRole("ADMIN")
