@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,11 +52,16 @@ class UsuarioServiceTest {
 
     private static final Rol ROLOPERADOR = new Rol(1L, "OPERADOR", "Operador de bodega");
 
-    private static final Usuario USUARIO = new Usuario(
-            1L, "testuser", "$2a$hash", "test@mail.com",
-            ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
-
     private static final Date EXPIRATION = new Date(System.currentTimeMillis() + 3_600_000L);
+
+    private Usuario USUARIO;
+
+    @BeforeEach
+    void setUp() {
+        USUARIO = new Usuario(
+                1L, "testuser", "$2a$hash", "test@mail.com",
+                ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+    }
 
     @Test
     void registrarUsuarioNuevoGuardaYRetornaDTO() {
