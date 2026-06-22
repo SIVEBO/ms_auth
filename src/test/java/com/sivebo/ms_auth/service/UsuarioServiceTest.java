@@ -1,9 +1,14 @@
 package com.sivebo.ms_auth.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -203,7 +208,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_cambiaEmail_retornaActualizado() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, "nuevo@mail.com", null, null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(usuarioRepository.existsByEmail("nuevo@mail.com")).thenReturn(false);
@@ -218,7 +223,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_cambiaPassword_encriptaYGuarda() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO("newpass123", null, null, null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(passwordEncoder.encode("newpass123")).thenReturn("$2a$newHash");
@@ -248,7 +253,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_desactivaUsuario_cambiaEstado() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, null, null, false);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROL_OPERADOR, 10L, false, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROLOPERADOR, 10L, false, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);

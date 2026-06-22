@@ -39,7 +39,6 @@ public class UsuarioService extends MapToDTO {
         private final BCryptPasswordEncoder passwordEncoder;
         private final JwtUtil jwtUtil;
 
-        // RF-02: registrar usuario con rol y sucursal asignada
         public UsuarioResponseDTO registrar(RegisterRequestDTO dto) {
                 if (usuarioRepository.existsByUsername(dto.getUsername())) {
                         throw new DuplicateResourceException("El username ya está en uso: " + dto.getUsername());
@@ -66,7 +65,6 @@ public class UsuarioService extends MapToDTO {
                 return mapUsuarioToDTO(usuarioRepository.save(usuario));
         }
 
-        // RF-01: login con generacion de JWT real
         public AuthResponseDTO login(LoginRequestDTO dto) {
                 Usuario usuario = usuarioRepository.findByUsername(dto.getUsername())
                                 .orElseThrow(() -> new InvalidCredentialsException("Usuario o contraseña incorrectos"));
@@ -105,7 +103,6 @@ public class UsuarioService extends MapToDTO {
                                 .collect(Collectors.toList());
         }
 
-        // Usado por otros microservicios via WebClient (ej. ms_admision validando id_usuario_reg)
         public UsuarioResponseDTO getById(Long id) {
                 return usuarioRepository.findById(id)
                                 .map(this::mapUsuarioToDTO)
@@ -142,7 +139,6 @@ public class UsuarioService extends MapToDTO {
                 return mapUsuarioToDTO(usuarioRepository.save(usuario));
         }
 
-        // RF-04: logout con invalidacion del token de sesion
         public void logout(String token) {
                 TokenSesion sesion = tokenSesionRepository.findByToken(token)
                                 .orElseThrow(() -> new EntityNotFoundException("Sesión no encontrada o ya invalidada"));

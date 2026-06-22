@@ -2,7 +2,7 @@
   "info": {
     "name": "ms_auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "SIVEBO ms_auth: todos los puntos finales, enrutados a través de el API gateway ({{baseUrl}}). Ejecute primero la solicitud de inicio de sesión para completar {{token}}."
+    "description": "SIVEBO ms_auth — todos los endpoints enrutados a través del API Gateway ({{baseUrl}}). Ejecute primero 'Iniciar sesión' para poblar {{token}}; las demás solicitudes usan ese token como Bearer automáticamente. El registro de usuarios requiere rol ADMIN. Los endpoints de roles también requieren ADMIN. Ejecute 'Cerrar sesión' al final para invalidar el token activo."
   },
   "auth": {
     "type": "bearer",
@@ -18,10 +18,10 @@
   ],
   "item": [
     {
-      "name": "AuthController",
+      "name": "Autenticación",
       "item": [
         {
-          "name": "Login",
+          "name": "Iniciar sesión",
           "request": {
             "method": "POST",
             "auth": { "type": "noauth" },
@@ -49,7 +49,7 @@
           ]
         },
         {
-          "name": "Registrar",
+          "name": "Registrar usuario",
           "request": {
             "method": "POST",
             "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "name": "UsuarioController",
+      "name": "Usuarios",
       "item": [
         {
           "name": "Listar usuarios (ADMIN)",
@@ -91,7 +91,7 @@
           ]
         },
         {
-          "name": "Obtener usuario por id (public)",
+          "name": "Obtener usuario por id (público)",
           "request": {
             "method": "GET",
             "auth": { "type": "noauth" },
@@ -105,10 +105,10 @@
       ]
     },
     {
-      "name": "RolController",
+      "name": "Roles",
       "item": [
         {
-          "name": "Create rol (ADMIN)",
+          "name": "Crear rol (ADMIN)",
           "request": {
             "method": "POST",
             "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
@@ -177,7 +177,7 @@
           ]
         },
         {
-          "name": "Borrar rol (ADMIN)",
+          "name": "Eliminar rol (ADMIN)",
           "request": {
             "method": "DELETE",
             "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
@@ -191,10 +191,10 @@
       ]
     },
     {
-      "name": "Session (correr ultimo)",
+      "name": "Sesión (ejecutar último)",
       "item": [
         {
-          "name": "Logout",
+          "name": "Cerrar sesión",
           "request": {
             "method": "POST",
             "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
