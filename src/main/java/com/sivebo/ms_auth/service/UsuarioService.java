@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.sivebo.ms_auth.dto.request.LoginRequestDTO;
 import com.sivebo.ms_auth.dto.request.RegisterRequestDTO;
+import com.sivebo.ms_auth.dto.request.UpdateUsuarioRequestDTO;
 import com.sivebo.ms_auth.dto.response.AuthResponseDTO;
 import com.sivebo.ms_auth.dto.response.UsuarioResponseDTO;
 import com.sivebo.ms_auth.exception.DuplicateResourceException;
@@ -109,6 +110,36 @@ public class UsuarioService extends MapToDTO {
                 return usuarioRepository.findById(id)
                                 .map(this::mapUsuarioToDTO)
                                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
+        }
+
+        public UsuarioResponseDTO actualizar(Long id, UpdateUsuarioRequestDTO dto) {
+                Usuario usuario = usuarioRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
+
+                if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+                        usuario.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+                }
+                if (dto.getEmail() != null) {
+                        if (!dto.getEmail().isBlank() && !dto.getEmail().equals(usuario.getEmail())
+                                        && usuarioRepository.existsByEmail(dto.getEmail())) {
+                                throw new DuplicateResourceException("El email ya está en uso: " + dto.getEmail());
+                        }
+                        usuario.setEmail(dto.getEmail());
+                }
+                if (dto.getNombreRol() != null && !dto.getNombreRol().isBlank()) {
+                        Rol nuevoRol = rolRepository.findByNombreRol(dto.getNombreRol())
+                                        .orElseThrow(() -> new EntityNotFoundException("Rol no encontrado: " + dto.getNombreRol()));
+                        usuario.setRol(nuevoRol);
+                }
+                if (dto.getIdSucursalAsignada() != null) {
+                        usuario.setIdSucursalAsignada(dto.getIdSucursalAsignada());
+                }
+                if (dto.getActivo() != null) {
+                        usuario.setActivo(dto.getActivo());
+                }
+
+                log.info(">>> Usuario actualizado id={}", id);
+                return mapUsuarioToDTO(usuarioRepository.save(usuario));
         }
 
         // RF-04: logout con invalidacion del token de sesion

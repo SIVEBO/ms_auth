@@ -2,6 +2,7 @@ package com.sivebo.ms_auth.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.sivebo.ms_auth.dto.request.LoginRequestDTO;
 import com.sivebo.ms_auth.dto.request.RegisterRequestDTO;
+import com.sivebo.ms_auth.dto.request.UpdateUsuarioRequestDTO;
 import com.sivebo.ms_auth.dto.response.AuthResponseDTO;
 import com.sivebo.ms_auth.dto.response.UsuarioResponseDTO;
 import com.sivebo.ms_auth.exception.DuplicateResourceException;
@@ -134,7 +136,7 @@ class UsuarioServiceTest {
         LoginRequestDTO dto = new LoginRequestDTO("testuser", "wrongpass");
 
         when(usuarioRepository.findByUsername("testuser")).thenReturn(Optional.of(USUARIO));
-        when(passwordEncoder.matches("wrongpass", "$2a$hash")).thenReturn(false);
+        doReturn(false).when(passwordEncoder).matches(any(), any());
 
         assertThrows(InvalidCredentialsException.class, () -> service.login(dto));
         verify(tokenSesionRepository, never()).save(any());
@@ -196,5 +198,93 @@ class UsuarioServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> service.logout("invalid-token"));
         verify(tokenSesionRepository, never()).delete(any());
+    }
+
+    @Test
+    void actualizar_cambiaEmail_retornaActualizado() {
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, "nuevo@mail.com", null, null, null);
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
+        when(usuarioRepository.existsByEmail("nuevo@mail.com")).thenReturn(false);
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);
+
+        UsuarioResponseDTO result = service.actualizar(1L, dto);
+
+        assertEquals("nuevo@mail.com", result.getEmail());
+        verify(usuarioRepository).save(any(Usuario.class));
+    }
+
+    @Test
+    void actualizar_cambiaPassword_encriptaYGuarda() {
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO("newpass123", null, null, null, null);
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
+        when(passwordEncoder.encode("newpass123")).thenReturn("$2a$newHash");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);
+
+        service.actualizar(1L, dto);
+
+        verify(passwordEncoder).encode("newpass123");
+        verify(usuarioRepository).save(any(Usuario.class));
+    }
+
+    @Test
+    void actualizar_cambiaRol_buscaYAsigna() {
+        Rol rolAdmin = new Rol(2L, "ADMIN", "Administrador");
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, "ADMIN", null, null);
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", rolAdmin, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
+        when(rolRepository.findByNombreRol("ADMIN")).thenReturn(Optional.of(rolAdmin));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);
+
+        UsuarioResponseDTO result = service.actualizar(1L, dto);
+
+        assertEquals("ADMIN", result.getNombreRol());
+    }
+
+    @Test
+    void actualizar_desactivaUsuario_cambiaEstado() {
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, null, null, false);
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROL_OPERADOR, 10L, false, LocalDateTime.of(2026, 1, 1, 0, 0));
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);
+
+        UsuarioResponseDTO result = service.actualizar(1L, dto);
+
+        assertFalse(result.getActivo());
+    }
+
+    @Test
+    void actualizar_emailDuplicado_lanzaDuplicateResourceException() {
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, "otro@mail.com", null, null, null);
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
+        when(usuarioRepository.existsByEmail("otro@mail.com")).thenReturn(true);
+
+        assertThrows(DuplicateResourceException.class, () -> service.actualizar(1L, dto));
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void actualizar_usuarioNoExiste_lanzaEntityNotFoundException() {
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, null, null, true);
+
+        when(usuarioRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> service.actualizar(99L, dto));
+    }
+
+    @Test
+    void actualizar_rolNoExiste_lanzaEntityNotFoundException() {
+        UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, "INEXISTENTE", null, null);
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
+        when(rolRepository.findByNombreRol("INEXISTENTE")).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> service.actualizar(1L, dto));
     }
 }
