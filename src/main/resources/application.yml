@@ -7,9 +7,8 @@ spring:
     password: ${MYSQLPASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
-    # TEMP: 'create' para regenerar FK en MySQL. Cambiar a 'update' tras el primer arranque exitoso.
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
