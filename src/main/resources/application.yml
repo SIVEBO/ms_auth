@@ -4,14 +4,13 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: ${DB_URL:jdbc:mariadb://localhost:3306/db_ms_auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    url: jdbc:mariadb://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQLUSER}
+    password: ${MYSQLPASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: update
     show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
@@ -19,7 +18,7 @@ spring:
           sql: true
 
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 springdoc:
   api-docs:
@@ -30,6 +29,9 @@ springdoc:
 
 eureka:
   client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
     service-url:
       defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
   instance:
