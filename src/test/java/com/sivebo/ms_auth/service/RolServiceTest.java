@@ -31,7 +31,7 @@ class RolServiceTest {
     private static final Rol ADMIN = new Rol(2L, "ADMIN", "Administrador");
 
     @Test
-    void getAll_retornaTodosLosRoles() {
+    void getAllRetornaTodosLosRoles() {
         when(rolRepository.findAll()).thenReturn(List.of(OPERADOR, ADMIN));
 
         List<RolResponseDTO> result = service.getAll();
@@ -42,14 +42,14 @@ class RolServiceTest {
     }
 
     @Test
-    void getAll_sinRoles_retornaListaVacia() {
+    void getAllSinRolesRetornaListaVacia() {
         when(rolRepository.findAll()).thenReturn(List.of());
 
         assertTrue(service.getAll().isEmpty());
     }
 
     @Test
-    void getById_encontrado_retornaDTO() {
+    void getByIdEncontradoRetornaDTO() {
         when(rolRepository.findById(1L)).thenReturn(Optional.of(OPERADOR));
 
         Optional<RolResponseDTO> result = service.getById(1L);
@@ -59,14 +59,14 @@ class RolServiceTest {
     }
 
     @Test
-    void getById_noExiste_retornaVacio() {
+    void getByIdNoExisteRetornaVacio() {
         when(rolRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertTrue(service.getById(99L).isEmpty());
     }
 
     @Test
-    void create_rolNuevo_guardaYRetornaDTO() {
+    void createRolNuevoGuardaYRetornaDTO() {
         RolRequestDTO dto = new RolRequestDTO("SUPERVISOR", "Supervisor de turno");
         Rol rolGuardado = new Rol(3L, "SUPERVISOR", "Supervisor de turno");
 
@@ -81,7 +81,7 @@ class RolServiceTest {
     }
 
     @Test
-    void create_nombreDuplicado_lanzaDuplicateResourceException() {
+    void createNombreDuplicadoLanzaDuplicateResourceException() {
         RolRequestDTO dto = new RolRequestDTO("OPERADOR", "otro desc");
         when(rolRepository.existsByNombreRol("OPERADOR")).thenReturn(true);
 
@@ -90,9 +90,9 @@ class RolServiceTest {
     }
 
     @Test
-    void update_encontrado_actualizaYRetornaDTO() {
-        RolRequestDTO dto = new RolRequestDTO("OPERADOR_V2", "Versión actualizada");
-        Rol rolActualizado = new Rol(1L, "OPERADOR_V2", "Versión actualizada");
+    void updateEncontradoActualizaYRetornaDTO() {
+        RolRequestDTO dto = new RolRequestDTO("OPERADORV2", "Versión actualizada");
+        Rol rolActualizado = new Rol(1L, "OPERADORV2", "Versión actualizada");
 
         when(rolRepository.findById(1L)).thenReturn(Optional.of(new Rol(1L, "OPERADOR", "Operador")));
         when(rolRepository.save(any(Rol.class))).thenReturn(rolActualizado);
@@ -100,12 +100,12 @@ class RolServiceTest {
         Optional<RolResponseDTO> result = service.update(1L, dto);
 
         assertTrue(result.isPresent());
-        assertEquals("OPERADOR_V2", result.get().getNombreRol());
+        assertEquals("OPERADORV2", result.get().getNombreRol());
         verify(rolRepository).save(any(Rol.class));
     }
 
     @Test
-    void update_noExiste_retornaVacio() {
+    void updateNoExisteRetornaVacio() {
         when(rolRepository.findById(99L)).thenReturn(Optional.empty());
 
         Optional<RolResponseDTO> result = service.update(99L, new RolRequestDTO("X", null));
@@ -115,7 +115,7 @@ class RolServiceTest {
     }
 
     @Test
-    void deleteById_rolExiste_eliminaYRetornaTrue() {
+    void deleteByIdRolExisteEliminaYRetornaTrue() {
         when(rolRepository.existsById(1L)).thenReturn(true);
         doNothing().when(rolRepository).deleteById(1L);
 
@@ -124,7 +124,7 @@ class RolServiceTest {
     }
 
     @Test
-    void deleteById_noExiste_lanzaEntityNotFoundException() {
+    void deleteByIdNoExisteLanzaEntityNotFoundException() {
         when(rolRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> service.deleteById(99L));

@@ -29,21 +29,21 @@ public class AuthController {
 
         private final UsuarioService usuarioService;
 
-        @Operation(summary = "Registrar usuario", description = "RF-02: registra un usuario asignando rol y sucursal")
+        @Operation(summary = "Registrar usuario", description = "registra un usuario asignando rol y sucursal")
         @PostMapping("/register")
         public ResponseEntity<UsuarioResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
                 log.info(">>> POST /api/v1/auth/register - username: {}", dto.getUsername());
                 return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registrar(dto));
         }
 
-        @Operation(summary = "Iniciar sesión", description = "RF-01: retorna un token JWT válido")
+        @Operation(summary = "Iniciar sesión", description = "retorna un token JWT válido")
         @PostMapping("/login")
         public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
                 log.info(">>> POST /api/v1/auth/login - username: {}", dto.getUsername());
                 return ResponseEntity.ok(usuarioService.login(dto));
         }
 
-        @Operation(summary = "Cerrar sesión", description = "RF-04: invalida el token JWT activo")
+        @Operation(summary = "Cerrar sesión", description = "invalida el token JWT activo")
         @PostMapping("/logout")
         public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
                 String token = authHeader.replace("Bearer ", "");

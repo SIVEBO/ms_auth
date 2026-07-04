@@ -1,15 +1,21 @@
 package com.sivebo.ms_auth.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,22 +50,27 @@ class UsuarioServiceTest {
 
     @InjectMocks UsuarioService service;
 
-    private static final Rol ROL_OPERADOR = new Rol(1L, "OPERADOR", "Operador de bodega");
-
-    private static final Usuario USUARIO = new Usuario(
-            1L, "testuser", "$2a$hash", "test@mail.com",
-            ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+    private static final Rol ROLOPERADOR = new Rol(1L, "OPERADOR", "Operador de bodega");
 
     private static final Date EXPIRATION = new Date(System.currentTimeMillis() + 3_600_000L);
 
+    private Usuario USUARIO;
+
+    @BeforeEach
+    void setUp() {
+        USUARIO = new Usuario(
+                1L, "testuser", "$2a$hash", "test@mail.com",
+                ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+    }
+
     @Test
-    void registrar_usuarioNuevo_guardaYRetornaDTO() {
+    void registrarUsuarioNuevoGuardaYRetornaDTO() {
         RegisterRequestDTO dto = new RegisterRequestDTO(
                 "testuser", "pass123", "test@mail.com", "OPERADOR", 10L);
 
         when(usuarioRepository.existsByUsername("testuser")).thenReturn(false);
         when(usuarioRepository.existsByEmail("test@mail.com")).thenReturn(false);
-        when(rolRepository.findByNombreRol("OPERADOR")).thenReturn(Optional.of(ROL_OPERADOR));
+        when(rolRepository.findByNombreRol("OPERADOR")).thenReturn(Optional.of(ROLOPERADOR));
         when(passwordEncoder.encode("pass123")).thenReturn("$2a$hash");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(USUARIO);
 
@@ -72,7 +83,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void registrar_usernameDuplicado_lanzaDuplicateResourceException() {
+    void registrarUsernameDuplicadoLanzaDuplicateResourceException() {
         RegisterRequestDTO dto = new RegisterRequestDTO(
                 "testuser", "pass123", "new@mail.com", "OPERADOR", null);
 
@@ -83,7 +94,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void registrar_emailDuplicado_lanzaDuplicateResourceException() {
+    void registrarEmailDuplicadoLanzaDuplicateResourceException() {
         RegisterRequestDTO dto = new RegisterRequestDTO(
                 "newuser", "pass123", "test@mail.com", "OPERADOR", null);
 
@@ -95,7 +106,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void registrar_rolNoExiste_lanzaEntityNotFoundException() {
+    void registrarRolNoExisteLanzaEntityNotFoundException() {
         RegisterRequestDTO dto = new RegisterRequestDTO(
                 "newuser", "pass123", null, "SUPERADMIN", null);
 
@@ -106,7 +117,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void login_credencialesValidas_retornaToken() {
+    void loginCredencialesValidasRetornaToken() {
         LoginRequestDTO dto = new LoginRequestDTO("testuser", "pass123");
 
         when(usuarioRepository.findByUsername("testuser")).thenReturn(Optional.of(USUARIO));
@@ -124,7 +135,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void login_usuarioNoExiste_lanzaInvalidCredentialsException() {
+    void loginUsuarioNoExisteLanzaInvalidCredentialsException() {
         LoginRequestDTO dto = new LoginRequestDTO("noexiste", "pass123");
         when(usuarioRepository.findByUsername("noexiste")).thenReturn(Optional.empty());
 
@@ -132,7 +143,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void login_passwordIncorrecta_lanzaInvalidCredentialsException() {
+    void loginPasswordIncorrectaLanzaInvalidCredentialsException() {
         LoginRequestDTO dto = new LoginRequestDTO("testuser", "wrongpass");
 
         when(usuarioRepository.findByUsername("testuser")).thenReturn(Optional.of(USUARIO));
@@ -143,8 +154,8 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void login_usuarioInactivo_lanzaInvalidCredentialsException() {
-        Usuario inactivo = new Usuario(2L, "inactivo", "$2a$hash", null, ROL_OPERADOR, null, false, LocalDateTime.now());
+    void loginUsuarioInactivoLanzaInvalidCredentialsException() {
+        Usuario inactivo = new Usuario(2L, "inactivo", "$2a$hash", null, ROLOPERADOR, null, false, LocalDateTime.now());
         LoginRequestDTO dto = new LoginRequestDTO("inactivo", "pass123");
 
         when(usuarioRepository.findByUsername("inactivo")).thenReturn(Optional.of(inactivo));
@@ -155,7 +166,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void listarUsuarios_retornaTodosLosMapeados() {
+    void listarUsuariosRetornaTodosLosMapeados() {
         when(usuarioRepository.findAll()).thenReturn(List.of(USUARIO));
 
         List<UsuarioResponseDTO> result = service.listarUsuarios();
@@ -165,7 +176,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void getById_encontrado_retornaDTO() {
+    void getByIdEncontradoRetornaDTO() {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
 
         UsuarioResponseDTO result = service.getById(1L);
@@ -175,14 +186,14 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void getById_noExiste_lanzaEntityNotFoundException() {
+    void getByIdNoExisteLanzaEntityNotFoundException() {
         when(usuarioRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.getById(99L));
     }
 
     @Test
-    void logout_tokenValido_eliminaSesion() {
+    void logoutTokenValidoEliminaSesion() {
         TokenSesion sesion = new TokenSesion();
         when(tokenSesionRepository.findByToken("jwt-token")).thenReturn(Optional.of(sesion));
         doNothing().when(tokenSesionRepository).delete(sesion);
@@ -193,7 +204,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void logout_tokenNoExiste_lanzaEntityNotFoundException() {
+    void logoutTokenNoExisteLanzaEntityNotFoundException() {
         when(tokenSesionRepository.findByToken("invalid-token")).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.logout("invalid-token"));
@@ -203,7 +214,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_cambiaEmail_retornaActualizado() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, "nuevo@mail.com", null, null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(usuarioRepository.existsByEmail("nuevo@mail.com")).thenReturn(false);
@@ -218,7 +229,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_cambiaPassword_encriptaYGuarda() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO("newpass123", null, null, null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROL_OPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(passwordEncoder.encode("newpass123")).thenReturn("$2a$newHash");
@@ -248,7 +259,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_desactivaUsuario_cambiaEstado() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, null, null, false);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROL_OPERADOR, 10L, false, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROLOPERADOR, 10L, false, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);

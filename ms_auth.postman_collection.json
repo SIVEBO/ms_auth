@@ -1,0 +1,211 @@
+{
+  "info": {
+    "name": "ms_auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "SIVEBO ms_auth — todos los endpoints enrutados a través del API Gateway ({{baseUrl}}). Ejecute primero 'Iniciar sesión' para poblar {{token}}; las demás solicitudes usan ese token como Bearer automáticamente. El registro de usuarios requiere rol ADMIN. Los endpoints de roles también requieren ADMIN. Ejecute 'Cerrar sesión' al final para invalidar el token activo."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "idUsuario", "value": "1" },
+    { "key": "idRol", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Iniciar sesión",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j;",
+                  "try { j = pm.response.json(); } catch (e) { j = null; }",
+                  "if (j && j.token) pm.collectionVariables.set(\"token\", j.token);",
+                  "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"operador1\",\n  \"password\": \"secret123\",\n  \"email\": \"operador1@sivebo.cl\",\n  \"nombreRol\": \"ADMIN\",\n  \"idSucursalAsignada\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios (ADMIN)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/usuarios", "host": ["{{baseUrl}}"], "path": ["api","v1","usuarios"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } }
+          ]
+        },
+        {
+          "name": "Obtener usuario por id (público)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/usuarios/{{idUsuario}}", "host": ["{{baseUrl}}"], "path": ["api","v1","usuarios","{{idUsuario}}"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Crear rol (ADMIN)",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreRol\": \"SUPERVISOR\",\n  \"descripcion\": \"Supervisor de sucursal\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/roles", "host": ["{{baseUrl}}"], "path": ["api","v1","roles"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j;",
+                  "try { j = pm.response.json(); } catch (e) { j = null; }",
+                  "if (j && j.id !== undefined && j.id !== null) pm.collectionVariables.set(\"idRol\", j.id);",
+                  "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar roles (ADMIN)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/roles", "host": ["{{baseUrl}}"], "path": ["api","v1","roles"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } }
+          ]
+        },
+        {
+          "name": "Obtener rol por id (ADMIN)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/roles/{{idRol}}", "host": ["{{baseUrl}}"], "path": ["api","v1","roles","{{idRol}}"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } }
+          ]
+        },
+        {
+          "name": "Actualizar rol (ADMIN)",
+          "request": {
+            "method": "PUT",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreRol\": \"SUPERVISOR\",\n  \"descripcion\": \"Supervisor regional\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/roles/{{idRol}}", "host": ["{{baseUrl}}"], "path": ["api","v1","roles","{{idRol}}"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } }
+          ]
+        },
+        {
+          "name": "Eliminar rol (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/roles/{{idRol}}", "host": ["{{baseUrl}}"], "path": ["api","v1","roles","{{idRol}}"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200,204]); });" ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sesión (ejecutar último)",
+      "item": [
+        {
+          "name": "Cerrar sesión",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","logout"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test(\"status ok\", function () { pm.expect(pm.response.code).to.be.oneOf([200]); });" ] } }
+          ]
+        }
+      ]
+    }
+  ]
+}

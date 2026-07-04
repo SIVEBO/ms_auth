@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("api/v1/roles")
 @RequiredArgsConstructor
-@Tag(name = "Roles", description = "RF-05: CRUD de roles disponibles en el sistema (requiere rol Admin)")
+@Tag(name = "Roles", description = "CRUD de roles disponibles en el sistema (requiere rol Admin)")
 public class RolController {
 
         private final RolService rolService;
