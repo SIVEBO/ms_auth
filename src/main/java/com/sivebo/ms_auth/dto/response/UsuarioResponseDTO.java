@@ -15,7 +15,7 @@ public class UsuarioResponseDTO {
         String username;
         String email;
         String nombreRol;
-        Long idSucursalAsignada;
+        String nombreSucursal;
         Boolean activo;
         LocalDateTime createdAt;
 }

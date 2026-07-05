@@ -57,7 +57,7 @@ public class UsuarioService extends MapToDTO {
                                 passwordEncoder.encode(dto.getPassword()),
                                 dto.getEmail(),
                                 rol,
-                                dto.getIdSucursalAsignada(),
+                                dto.getNombreSucursal(),
                                 true,
                                 LocalDateTime.now());
 
@@ -128,8 +128,8 @@ public class UsuarioService extends MapToDTO {
                                         .orElseThrow(() -> new EntityNotFoundException("Rol no encontrado: " + dto.getNombreRol()));
                         usuario.setRol(nuevoRol);
                 }
-                if (dto.getIdSucursalAsignada() != null) {
-                        usuario.setIdSucursalAsignada(dto.getIdSucursalAsignada());
+                if (dto.getNombreSucursal() != null) {
+                        usuario.setNombreSucursal(dto.getNombreSucursal());
                 }
                 if (dto.getActivo() != null) {
                         usuario.setActivo(dto.getActivo());

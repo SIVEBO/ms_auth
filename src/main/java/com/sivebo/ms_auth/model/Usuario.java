@@ -38,8 +38,9 @@ public class Usuario {
         @JoinColumn(name = "id_rol", nullable = false)
         Rol rol;
 
-        @Column(name = "id_sucursal_asignada")
-        Long idSucursalAsignada;
+        // Ref Ext -> db_ms_sucursales.SUCURSAL.nombre_sucursal
+        @Column(name = "nombre_sucursal", length = 100)
+        String nombreSucursal;
 
         @Column(name = "activo", nullable = false)
         Boolean activo;

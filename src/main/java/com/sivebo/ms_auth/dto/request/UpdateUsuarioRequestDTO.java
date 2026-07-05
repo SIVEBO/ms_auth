@@ -19,7 +19,7 @@ public class UpdateUsuarioRequestDTO {
 
         String nombreRol;
 
-        Long idSucursalAsignada;
+        String nombreSucursal;
 
         Boolean activo;
 }

@@ -60,13 +60,13 @@ class UsuarioServiceTest {
     void setUp() {
         USUARIO = new Usuario(
                 1L, "testuser", "$2a$hash", "test@mail.com",
-                ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+                ROLOPERADOR, "Sucursal Centro", true, LocalDateTime.of(2026, 1, 1, 0, 0));
     }
 
     @Test
     void registrarUsuarioNuevoGuardaYRetornaDTO() {
         RegisterRequestDTO dto = new RegisterRequestDTO(
-                "testuser", "pass123", "test@mail.com", "OPERADOR", 10L);
+                "testuser", "pass123", "test@mail.com", "OPERADOR", "Sucursal Centro");
 
         when(usuarioRepository.existsByUsername("testuser")).thenReturn(false);
         when(usuarioRepository.existsByEmail("test@mail.com")).thenReturn(false);
@@ -214,7 +214,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_cambiaEmail_retornaActualizado() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, "nuevo@mail.com", null, null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "nuevo@mail.com", ROLOPERADOR, "Sucursal Centro", true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(usuarioRepository.existsByEmail("nuevo@mail.com")).thenReturn(false);
@@ -229,7 +229,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_cambiaPassword_encriptaYGuarda() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO("newpass123", null, null, null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROLOPERADOR, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$newHash", "test@mail.com", ROLOPERADOR, "Sucursal Centro", true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(passwordEncoder.encode("newpass123")).thenReturn("$2a$newHash");
@@ -245,7 +245,7 @@ class UsuarioServiceTest {
     void actualizar_cambiaRol_buscaYAsigna() {
         Rol rolAdmin = new Rol(2L, "ADMIN", "Administrador");
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, "ADMIN", null, null);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", rolAdmin, 10L, true, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", rolAdmin, "Sucursal Centro", true, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(rolRepository.findByNombreRol("ADMIN")).thenReturn(Optional.of(rolAdmin));
@@ -259,7 +259,7 @@ class UsuarioServiceTest {
     @Test
     void actualizar_desactivaUsuario_cambiaEstado() {
         UpdateUsuarioRequestDTO dto = new UpdateUsuarioRequestDTO(null, null, null, null, false);
-        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROLOPERADOR, 10L, false, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Usuario actualizado = new Usuario(1L, "testuser", "$2a$hash", "test@mail.com", ROLOPERADOR, "Sucursal Centro", false, LocalDateTime.of(2026, 1, 1, 0, 0));
 
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(USUARIO));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(actualizado);

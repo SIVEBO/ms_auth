@@ -25,5 +25,5 @@ public class RegisterRequestDTO {
         @NotBlank(message = "El nombre del rol es obligatorio")
         String nombreRol;
 
-        Long idSucursalAsignada;
+        String nombreSucursal;
 }

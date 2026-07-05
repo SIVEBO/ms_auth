@@ -20,7 +20,7 @@ public class MapToDTO {
                                 usuario.getUsername(),
                                 usuario.getEmail(),
                                 usuario.getRol().getNombreRol(),
-                                usuario.getIdSucursalAsignada(),
+                                usuario.getNombreSucursal(),
                                 usuario.getActivo(),
                                 usuario.getCreatedAt());
         }
