@@ -3,6 +3,8 @@ spring:
     name: ms-auth
   profiles:
     active: dev
+  main:
+    web-application-type: servlet
   datasource:
     url: ${DB_URL:jdbc:mariadb://localhost:3306/db_ms_auth?createDatabaseIfNotExist=true}
     username: ${DB_USERNAME:root}
