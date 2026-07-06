@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sivebo.ms_auth.dto.request.UpdateUsuarioRequestDTO;
@@ -37,6 +38,12 @@ public class UsuarioController {
         @GetMapping("/{id}")
         public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id) {
                 return ResponseEntity.ok(usuarioService.getById(id));
+        }
+
+        @Operation(summary = "Buscar usuario por username", description = "Usado para validacion entre microservicios via WebClient")
+        @GetMapping("/buscar")
+        public ResponseEntity<UsuarioResponseDTO> buscarPorUsername(@RequestParam String username) {
+                return ResponseEntity.ok(usuarioService.getByUsername(username));
         }
 
         @Operation(summary = "Actualizar usuario", description = "Permite actualizar email, password, rol, sucursal y estado")

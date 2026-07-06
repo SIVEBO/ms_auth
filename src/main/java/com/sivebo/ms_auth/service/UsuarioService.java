@@ -109,6 +109,12 @@ public class UsuarioService extends MapToDTO {
                                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
         }
 
+        public UsuarioResponseDTO getByUsername(String username) {
+                return usuarioRepository.findByUsername(username)
+                                .map(this::mapUsuarioToDTO)
+                                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con username: " + username));
+        }
+
         public UsuarioResponseDTO actualizar(Long id, UpdateUsuarioRequestDTO dto) {
                 Usuario usuario = usuarioRepository.findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
