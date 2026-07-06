@@ -12,7 +12,7 @@ spring:
         allowPublicKeyRetrieval: true
         useSSL: ${DB_USE_SSL:false}
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
     show-sql: false
